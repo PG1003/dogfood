@@ -29,11 +29,12 @@ The first ```MODULE``` from the list is the entry point of the program while the
 The modules are provided _without_ the '.lua' extention.  
 C modules cannot be embedded in the resulting program but the program can load C modules when they are placed in one of the ```package.cpath``` search paths.
 
-The following OPTIONS are available.  
+The following ```OPTIONS``` are available.
+
 |Option | Description|
 |-------|------------|
-|-c --compile | Compile the modules and embed them as bytecode.|
-|-s --strip-debug-information | Strips the debug information from the bytecode.|
+|-c, --compile | Compile the modules and embed them as bytecode.|
+|-s, --strip-debug-information | Strips the debug information from the bytecode.|
 |-h, --help | Shows the help.|
 |-m | Adds the given path to ```package.loaded``` to search for modules that are provided as parameter.|
                               
