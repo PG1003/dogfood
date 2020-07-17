@@ -32,7 +32,7 @@
 #define MAX_NAME_LENGTH_STR STR( MAX_NAME_LENGTH )
 
 
-#if LUA_VERSION_NUM < 502 || LUA_VERSION_NUM > 503
+#if LUA_VERSION_NUM < 502 || LUA_VERSION_NUM > 504
     #error "Unsupported Lua version"
 #endif
 
@@ -61,11 +61,15 @@ static void load_module( char * const buffer,
     switch( result )
     {
         case LUA_OK:
+        case LUA_YIELD:
             break;
 
         case LUA_ERRSYNTAX:
         case LUA_ERRMEM:
+#if LUA_VERSION_NUM < 504
         case LUA_ERRGCMM:
+#endif
+        case LUA_ERRERR:
         {
             puts( lua_tolstring( L, -1, 0 ) );
             lua_close( L );

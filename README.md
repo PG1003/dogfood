@@ -5,7 +5,7 @@ This tool is an alternative for ```srlua``` which can be found [here](http://tec
 The main points where ```dogfood``` differs from ```srlua``` are;
 
 * One executable, there is no executable where the Lua script is glued to.
-* Can embed multipule Lua modules in one executable.
+* Can embed multiple Lua modules in one executable.
 
 ```dogfood``` consists of two parts; a Lua interpreter and a Lua module that creates the self executable Lua programs.
 The interpreter runs the dogfood's Lua module that is placed at the end of the executable file.
@@ -16,7 +16,7 @@ Using your own software products is also knowns as [dogfooding](https://en.wikip
 
 ## Requirements
 
-* Lua version 5.2 or 5.3
+* Lua version 5.2, 5.3 or 5.4
 
 ## Usage of dogfood
 
