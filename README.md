@@ -6,6 +6,7 @@ The main points where ```dogfood``` differs from ```srlua``` are;
 
 * One executable, there is no executable where the Lua script is glued to.
 * Can embed multiple Lua modules in one executable.
+* No support for Lua 5.1 and older.
 
 ```dogfood``` consists of two parts; a Lua interpreter and a Lua module that creates the self executable Lua programs.
 The interpreter runs the dogfood's Lua module that is placed at the end of the executable file.
@@ -37,6 +38,7 @@ The following ```OPTIONS``` are available.
 |-s, --strip-debug-information | Strips the debug information from the bytecode.|
 |-h, --help | Shows the help.|
 |-m | Adds the given path to ```package.loaded``` to search for modules that are provided as parameter.|
+|-v, --lua-version | Displays the Lua language version of the dogfood's interpreter.|
                               
                               
 ## Bootstrapping

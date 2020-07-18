@@ -19,7 +19,11 @@
 -- SOFTWARE.
 
 
-local help = [[Usage: dogfood [OPTIONS] OUT MODULE...
+local help = [[dogfood v1.0.1
+
+A tool  for creating self running Lua programs.
+
+Usage: dogfood [OPTIONS] OUT MODULE...
 
 Creates a program at location OUT that runs its embedded Lua MODULEs.
 The first MODULE from the list is the entry point of the program while
@@ -33,16 +37,14 @@ The following OPTIONS are available;
 -s, --strip-debug-information   Strips the debug information from the bytecode.
 -h, --help                      Show this help.
 -m                              Adds the given path to package.loaded to search
-                                  for modules that are provided as parameter.]]
+                                  for modules that are provided as parameter.
+-v, --lua-version               Show the Lua language version of the
+                                  interpreter used by the resulting program.]]
 
 
 local function dogfood_error( msg )
     print( "Dogfood error: " .. msg .. "\n" )
     os.exit( 1 )
-end
-
-local function dogfood_warn( msg )
-    print( "Dogfod warning: " .. msg .. "\n" )
 end
 
 --
@@ -55,6 +57,13 @@ local out                     = false
 local modules                 = {}
         
 do
+    if #arg == 0 then
+        dogfood_error( "Use '-h' or '--help' as parameters for information about the usage of dogfood." )
+    end
+
+    local displayed_help        = false
+    local displayed_lua_version = false
+
     local option = false
     for _, param in ipairs( arg ) do
         if option then
@@ -65,13 +74,14 @@ do
             option = false
         elseif param == "-h" or param == "--help" then
             print( help )
-            if #arg == 1 then
-                os.exit( 0 )
-            end
+            displayed_help = true
         elseif param == "-c" or param == "--compile" then
             compile = true
         elseif param == "-s" or param == "--strip-debug-information" then
             strip_debug_information = true
+        elseif param == "-v" or param == "--lua-version" then
+            print( _VERSION )
+            displayed_lua_version = true
         elseif param == "-m" then
             option = param
         else
@@ -81,6 +91,11 @@ do
                 modules[ #modules + 1 ] = { name = param }
             end
         end
+    end
+
+    -- '-h' and '-v' options display only information and do not require the OUT and MODULE parameters
+    if ( displayed_help or displayed_lua_version ) and not out and #modules == 0 then
+        os.exit( 0 )
     end
 
     if not out then
