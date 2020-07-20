@@ -129,12 +129,12 @@ int main( int argc, char *argv[] )
     /* The main module is the first module in the payload */
     char          main_module_name[ MAX_NAME_LENGTH + 1 ] = { 0 };
     unsigned long main_module_size                        = 0;
-	char		  carriage_return						  = 0;
+    char          carriage_return                         = 0;
     char          new_line                                = 0;
     if( fscanf( f, module_header, main_module_name, &main_module_size,
-		        &carriage_return, &new_line ) != 4 ||
+        &carriage_return, &new_line ) != 4 ||
         main_module_size == 0 ||
-		carriage_return != '\r' ||
+        carriage_return != '\r' ||
         new_line != '\n' )
     {
         dogfood_error( "No valid start of payload found." );
@@ -161,8 +161,8 @@ int main( int argc, char *argv[] )
     {
         unsigned long module_size = 0;
         if( fscanf( f, module_header, module_name, &module_size,
-					&carriage_return , &new_line ) != 4 ||
-			carriage_return != '\r' ||
+            &carriage_return , &new_line ) != 4 ||
+            carriage_return != '\r' ||
             new_line != '\n' )
         {
             dogfood_error( "No valid start of module found." );
