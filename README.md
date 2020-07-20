@@ -4,7 +4,7 @@ This tool is an alternative for ```srlua``` which can be found [here](http://tec
 
 The main points where ```dogfood``` differs from ```srlua``` are;
 
-* One executable, there is no executable where the Lua script is glued to.
+* One self containing executable.
 * Can embed multiple Lua modules in one executable.
 * No support for Lua 5.1 and older.
 
@@ -38,14 +38,14 @@ The following ```OPTIONS``` are available.
 |-s, --strip-debug-information | Strips the debug information from the bytecode.|
 |-h, --help | Shows the help.|
 |-m | Adds the given path to ```package.loaded``` to search for modules that are provided as parameter.|
-|-v, --lua-version | Displays the Lua language version of the dogfood's interpreter.|
+|-v, --lua-version | Shows the Lua language version of the interpreter used by the resulting program..|
                               
                               
 ## Bootstrapping
 
 ```dogfood``` must be bootstrapped before it is able to build self executable Lua programs.
 The makefile provided with the sources already takes care of this.
-In case when you have your own build environment a bootstrap shell script is provided for Unix like environments and for Windows.
+In case when you have your own build environment, a bootstrap shell script is provided for Unix like environments and for Windows.
 
 The usage of the bootstrap script is as follows;
 
