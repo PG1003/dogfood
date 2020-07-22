@@ -28,7 +28,7 @@ $(OUTDIR):
 
 test: $(OUTDIR)foobar
 	@echo "Running test..."
-	@$< || ( @echo "Test failure!"; exit 1; )
+	@$< "-param" || ( echo "---"; echo "Dogfood test failed!"; exit 1; )
 
 $(OUTDIR)foobar: $(OUTDIR)dogfood $(TSTDIR)foo.lua $(TSTDIR)bar.lua
 	$(OUTDIR)dogfood -c -s -m $(TSTDIR)?.lua $@ foo bar
