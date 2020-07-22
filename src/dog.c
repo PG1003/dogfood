@@ -218,12 +218,20 @@ int main( int argc, char *argv[] )
 
     free( buffer ); /* Free it so the memory can be reused by Lua */
 
-    lua_call( L, 0, 1 );
+    const int status = lua_pcall( L, 0, 1, 0 );
 
-    /* Return the exit status if the return value is a number else return 0 */
-    const int status = ( int )( lua_isnumber( L, 0 ) ? lua_tonumber( L, 0 ) : 0.0 );
+    if( status != LUA_OK )
+    {
+        /* Show Lua errors */
+        const char *msg = lua_tostring( L, -1 );
+        printf( "%s\n", msg );
+    }
+
+    /* Get the exit status if the return value is a number */
+    const int exit_status = ( int )( lua_isnumber( L, 0 ) ? lua_tonumber( L, 0 ) : 0.0 );
 
     lua_close( L );
 
-    return status;
+    /* Return exit status when OK, else default to 1 when there was an error */
+    return status == LUA_OK ? exit_status : 1;
 }
