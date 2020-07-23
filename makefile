@@ -27,8 +27,12 @@ $(OUTDIR):
 	mkdir $@
 
 test: $(OUTDIR)foobar
-	@echo "Running test..."
-	@$< "-param" || ( echo "---"; echo "Dogfood test failed!"; exit 1; )
+	@echo "Running tests..."
+	@echo "> Test 1; happy flow"
+	@$< "-param" && : || { echo ">>> Test 1 failed!"; exit 1; }
+	@echo "> Test 2; expect error from program"
+	@$< && { echo ">>> Test 2 failed!"; exit 1; } || :
+	@echo "Tests completed :)"
 
 $(OUTDIR)foobar: $(OUTDIR)dogfood $(TSTDIR)foo.lua $(TSTDIR)bar.lua
 	$(OUTDIR)dogfood -c -s -m $(TSTDIR)?.lua $@ foo bar

@@ -1,8 +1,8 @@
  
 local bar = {}
 
-function bar.do_bar()
-    print( "bar" )
+function bar.bar()
+    return "bar"
 end
 
 return bar
