@@ -1,0 +1,14 @@
+
+# current
+
+Changes:
+- Use lua_pcall when calling the main module and report errors to the user.
+
+# 1.0.1
+
+Changes:
+- Added the '-v' and '--lua-version' options to show the Lua language version.
+
+# v1.0.0
+
+- Initial release
