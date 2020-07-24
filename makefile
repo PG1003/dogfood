@@ -34,9 +34,9 @@ test: $(OUTDIR)foobar
 	@$< && { echo ">>> Test 2 failed!"; exit 1; } || :
 	@echo "Tests completed :)"
 
-$(OUTDIR)foobar: $(OUTDIR)dogfood $(TSTDIR)foo.lua $(TSTDIR)bar.lua
-	$(OUTDIR)dogfood -c -s -m $(TSTDIR)?.lua $@ foo bar
+$(OUTDIR)foobar: $(OUTDIR)dogfood $(TSTDIR)foo.lua $(TSTDIR)bar.lua $(TSTDIR)bar/baz.lua
+	$(OUTDIR)dogfood -c -s -m $(TSTDIR)?.lua $@ foo bar bar.baz
 	chmod u+x $@
-	
+
 clean:
 	rm -rf $(OUTDIR)
