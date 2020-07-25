@@ -41,7 +41,7 @@ static lua_State * L = 0;
 
 static void dogfood_error( const char * const message )
 {
-    printf( "Dogfood error: %s\n", message );
+    fprintf( stderr, "Dogfood error: %s\n", message );
     lua_close( L );
     exit( 1 );
 }
@@ -224,7 +224,7 @@ int main( int argc, char *argv[] )
     {
         /* Show Lua errors */
         const char *msg = lua_tostring( L, -1 );
-        printf( "%s\n", msg );
+        fprintf( stderr, "%s\n", msg );
     }
 
     /* Get the exit status if the return value is a number */

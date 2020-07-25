@@ -43,7 +43,7 @@ The following OPTIONS are available;
 
 
 local function dogfood_error( msg )
-    print( "Dogfood error: " .. msg .. "\n" )
+    io.stderr:write( "Dogfood error: " .. msg .. "\n" )
     os.exit( 1 )
 end
 
@@ -182,7 +182,7 @@ end
 
 do
     for _, mod in ipairs( modules ) do
-        -- Validate if the module has syntactic error by loading the file
+        -- Validate if the module has syntactic errors by loading the file
         local mod_chunk, error_msg = loadfile( mod.path, "t" );
         if mod_chunk == nil then
             dogfood_error( "Error while loading module.\n" .. error_msg )

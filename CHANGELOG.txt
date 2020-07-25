@@ -3,6 +3,7 @@
 
 Changes:
 - Use lua_pcall when calling the main module and report errors to the user.
+- Output all errors to stderr like the PUC Lua interpreter does.
 
 # 1.0.1
 
