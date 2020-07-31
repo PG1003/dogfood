@@ -1,16 +1,16 @@
-# A tool for building self executable Lua programs
+# A tool for building self contained Lua executables
 
 This tool is an alternative for ```srlua``` which can be found [here](http://tecgraf.puc-rio.br/~lhf/ftp/lua/).
 
 The main points where ```dogfood``` differs from ```srlua``` are;
 
-* One self containing executable.
+* One self contained executable.
 * Can embed multiple Lua modules in one executable.
 * No support for Lua 5.1 and older.
 
 ```dogfood``` consists of two parts; a Lua interpreter and a Lua module that creates the self executable Lua programs.
 The interpreter runs the dogfood's Lua module that is placed at the end of the executable file.
-The module reuses the interpreter when it builds a self executing Lua program by copying its interpreter and append the user's Lua modules.
+The module reuses the interpreter when it builds a self contained Lua executable by copying its interpreter and append the user's Lua modules.
 
 ```dogfood``` owes its name to the reuse of its own interpreter.
 Using your own software products is also knowns as [dogfooding](https://en.wikipedia.org/wiki/Eating_your_own_dog_food).
@@ -43,7 +43,7 @@ The following ```OPTIONS``` are available.
                               
 ## Bootstrapping
 
-```dogfood``` must be bootstrapped before it is able to build self executable Lua programs.
+```dogfood``` must be bootstrapped before it is able to build self contained Lua executables.
 The makefile provided with the sources already takes care of this.
 In case when you have your own build environment, a bootstrap shell script is provided for Unix like environments and for Windows.
 
