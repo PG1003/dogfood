@@ -46,6 +46,14 @@ static void dogfood_error( const char * const message )
     exit( 1 );
 }
 
+static void dogfood_error_extra( const char * const message, const char * const extra )
+{
+    fprintf( stderr, "Dogfood error: %s\n", message );
+    fputs( extra, stderr );
+    lua_close( L );
+    exit( 1 );
+}
+
 static void dogfood_errno()
 {
     perror( "Dogfood error" );
@@ -71,9 +79,9 @@ static void load_module( char * const buffer,
 #endif
         case LUA_ERRERR:
         {
-            puts( lua_tolstring( L, -1, 0 ) );
-            lua_close( L );
-            exit( 1 );
+            const char * const extra = lua_tostring( L, -1 );
+            dogfood_error_extra( "Error while loading module",
+                                 extra ? extra : "An error has occurred."  );
         }
     }
 }
@@ -94,7 +102,7 @@ int main( int argc, char *argv[] )
     lua_setglobal( L, "arg" );
 
     /* Open the executable to read the modules that are appended the file */
-    FILE *f = fopen( argv[ 0 ], "rb" );
+    FILE * const f = fopen( argv[ 0 ], "rb" );
     if( !f )
     {
         dogfood_errno();
@@ -222,9 +230,11 @@ int main( int argc, char *argv[] )
 
     if( status != LUA_OK )
     {
-        /* Show Lua errors */
-        const char *msg = lua_tostring( L, -1 );
-        fprintf( stderr, "%s\n", msg );
+        /* Show Lua errors.
+         * Do not prepend 'Dogfood error:' to the error message. The error has nothing
+         * to do with dogfood since it is emited by the Lua VM or the Lua modules. */
+        const char * const msg = lua_tostring( L, -1 );
+        fprintf( stderr, "%s\n", msg ? msg : "An error has occurred." );
     }
 
     /* Get the exit status if the return value is a number */
