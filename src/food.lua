@@ -47,6 +47,10 @@ local function dogfood_error( msg )
     os.exit( 1 )
 end
 
+local function dogfood_warn( msg )
+    io.stderr:write( "Dogfood warning: " .. msg .. "\n" )
+end
+
 --
 -- Parse and validate the commandline parameters
 --
@@ -113,16 +117,38 @@ end
 
 do
     local found = {}
-    for _, mod in ipairs( modules ) do
-        if not found[ mod.name ] then
+    local purge = {}
+    for i, mod in ipairs( modules ) do
+        if found[ mod.name ] then
+            -- Duplicates
+            purge[ #purge + 1 ] = i
+        else
             local path = package.searchpath( mod.name, package.path )
             if path then
                 mod.path = path
             else
-                dogfood_error( "Cannot find module '" .. mod.name .. "'." )
+                path = package.searchpath( mod.name, package.cpath )
+                if path then
+                    local ok, result = pcall( require, mod.name )
+                    if ok then
+                        dogfood_warn( "Module '" .. mod.name ..
+                                      "' is a C module found at location '" ..
+                                      path .. "'" )
+                        -- C modules cannot be embedded
+                        purge[ #purge + 1 ] = i
+                    else
+                        dogfood_error( result )
+                    end
+                else
+                    dogfood_error( "Cannot find module '" .. mod.name .. "'." )
+                end
             end
             found[ mod.name ] = true
         end
+    end
+
+    for i = #purge, 1, -1 do
+        table.remove( modules, purge[ i ] )
     end
 end
 
@@ -187,7 +213,7 @@ do
         if mod_chunk == nil then
             dogfood_error( "Error while loading module.\n" .. error_msg )
         end
-        
+
         local mod_data
         if compile then
             mod_data = assert( string.dump( mod_chunk, strip_debug_information ) )
@@ -203,7 +229,7 @@ do
         output:write( string.format( "\r\n-- %s %08X\r\n", mod.name, #mod_data ) )
         output:write( mod_data )
     end
-    
+
     output:write( payload_end )
     output:close()
 end
