@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include <lua.h>
 #include <lualib.h>
@@ -39,17 +40,15 @@
 static lua_State * L = 0;
 
 
-static void dogfood_error( const char * const message )
+static void dogfood_error( const char * const format, ... )
 {
-    fprintf( stderr, "Dogfood error: %s\n", message );
-    lua_close( L );
-    exit( 1 );
-}
+    va_list args;
+    va_start( args, format );
 
-static void dogfood_error_extra( const char * const message, const char * const extra )
-{
-    fprintf( stderr, "Dogfood error: %s\n", message );
-    fputs( extra, stderr );
+    fputs( "Dogfood error: ", stderr );
+    vfprintf( stderr, format, args );
+    fputc( '\n', stderr );
+
     lua_close( L );
     exit( 1 );
 }
@@ -80,8 +79,9 @@ static void load_module( char * const buffer,
         case LUA_ERRERR:
         {
             const char * const extra = lua_tostring( L, -1 );
-            dogfood_error_extra( "Error while loading module",
-                                 extra ? extra : "An error has occurred."  );
+            dogfood_error( extra ? "Error while loading module '%s';\n%s" :
+                                   "An error has occurred while loading module '%s'.",
+                           module_name, extra  );
         }
     }
 }
@@ -173,7 +173,7 @@ int main( int argc, char *argv[] )
             carriage_return != '\r' ||
             new_line != '\n' )
         {
-            dogfood_error( "No valid start of module found." );
+            dogfood_error( "No valid start of module '%s' found.", module_name );
         }
 
         if( buffer_size < module_size )
@@ -191,7 +191,7 @@ int main( int argc, char *argv[] )
 
         if( read_count != module_size )
         {
-            dogfood_error( "Cannot read the entire module." );
+            dogfood_error( "Cannot read the entire module '%s'.", module_name );
         }
 
         load_module( buffer, module_size, module_name );
