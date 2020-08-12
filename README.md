@@ -2,15 +2,20 @@
 
 This tool is an alternative for ```srlua``` which can be found [here](http://tecgraf.puc-rio.br/~lhf/ftp/lua/).
 
-The main points where ```dogfood``` differs from ```srlua``` are;
+The main points where ```dogfood``` differs from ```srlua``` are:
 
 * One self contained executable.
 * Can embed multiple Lua modules in one executable.
 * No support for Lua 5.1 and older.
 
+Other features:
+
+* Does not depend on a C compiler to build self contained Lua executables.
+* ```dogfood``` self can be build for Unix like operating systems _and_ Windows.
+
 ```dogfood``` consists of two parts; a Lua interpreter and a Lua module that creates the self executable Lua programs.
-The interpreter runs the dogfood's Lua module that is placed at the end of the executable file.
-The module reuses the interpreter when it builds a self contained Lua executable by copying its interpreter and append the user's Lua modules.
+The interpreter runs the dogfood's Lua module that is appended at the end of the executable.
+The module reuses the interpreter when it builds a self contained Lua executable by copying its interpreter and then append the user's Lua modules.
 
 ```dogfood``` owes its name to the reuse of its own interpreter.
 Using your own software products is also knowns as [dogfooding](https://en.wikipedia.org/wiki/Eating_your_own_dog_food).
@@ -53,10 +58,10 @@ The usage of the bootstrap script is as follows;
 bootstrap.sh EXECUTABLE food.lua OUT
 ```
 
-For Windows ```bootstrap.sh``` is replaced by ```bootstrap.bat```.
+For Windows ```bootstrap.bat``` instead of ```bootstrap.sh``` is used but the commandline prameters are same.
 
 ```EXECUTABLE``` is the path to the executable that needs to be bootstrapped.  
-The file ```food.lua``` contains the dogfood's logic.
+The file ```food.lua``` contains dogfood's logic.
 You can find this file in the [source](/src) directory.  
 ```OUT``` is the destination of the resulting executable.
 ```EXECUTABLE``` and ```OUT``` can point to the same file.
