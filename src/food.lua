@@ -19,7 +19,7 @@
 -- SOFTWARE.
 
 
-local help = [[dogfood v1.0.1
+local help = [[dogfood v1.0.2
 
 A tool  for creating self running Lua programs.
 
@@ -133,7 +133,7 @@ do
                     if ok then
                         dogfood_warn( "Module '" .. mod.name ..
                                       "' is a C module found at location '" ..
-                                      path .. "'" )
+                                      path .. "'." )
                         -- C modules cannot be embedded
                         purge[ #purge + 1 ] = i
                     else
