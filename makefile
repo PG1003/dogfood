@@ -3,6 +3,13 @@ CFLAGS = -Wall -Wextra -Wpedantic -O3
 INCLUDES = -I "./src"
 LDFLAGS = -llua
 
+OS = $(shell uname -s)
+ifeq ($(OS),Darwin)
+	LIB_FLAGS = -bundle -undefined dynamic_lookup
+else
+	LIB_FLAGS = -shared -fPIC
+endif
+
 SRCDIR = src/
 OUTDIR = out/
 TSTDIR = test/
@@ -54,7 +61,7 @@ $(OUTDIR)foobar: $(OUTDIR)dogfood $(TSTDIR)foo.lua $(TSTDIR)bar.lua $(TSTDIR)bar
 	chmod u+x $@
 
 $(OUTDIR)pg1003.so: $(TSTDIR)pg1003.c
-	$(CC)  $(CFLAGS) -shared -o $@ -fPIC $+
+	$(CC)  $(CFLAGS) $(LIB_FLAGS) -o $@ $+
 
 # By copying pg1003.so to pg1005.so we have created an invalid lua library (wrong entry point) that is used to test dogfood
 $(OUTDIR)pg1005.so: $(OUTDIR)pg1003.so
