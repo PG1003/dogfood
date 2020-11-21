@@ -23,12 +23,12 @@ set foodsize=00000000%foodsize%
 if /I not %1==%3 copy /B /Y %1 %3
 
 echo.>> %3
-echo -- %~n2 %foodsize:~-8%>> %3
+echo -- food %foodsize:~-8%>> %3
 
 type %2 >> %3
 
 echo.>> %3
-echo -- %~n1 %dogsize:~-8%>> %3
+echo -- dogfood %dogsize:~-8%>> %3
 
 endlocal
 
