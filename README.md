@@ -44,11 +44,21 @@ The following ```OPTIONS``` are available.
 |-h, --help | Shows the help.|
 |-m | Adds the given path to ```package.loaded``` to search for modules that are provided as parameter.|
 |-v, --lua-version | Shows the Lua language version of the interpreter used by the resulting program..|
-                              
+
+## Dogfood binaries for Windows
+
+Building dogfood binaries for Windows requires more effort than for Unix like operating systems.  
+The following executables are available for download to lower the bar for Windows users that want to try ```dogfood``` or don't have the knowledge to build it.
+
+| Lua version | dogfood v1.0.2 x86-64 | dogfood v1.0.2 x86-32 |
+|-------------|-----|-----|
+| 5.2.4 | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood52_win_x86-64.zip) | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood52_win_x86-32.zip) |
+| 5.3.6 | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood53_win_x86-64.zip) | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood53_win_x86-32.zip) |
+| 5.4.1 | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood54_win_x86-64.zip) | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood54_win_x86-32.zip) |
                               
 ## Bootstrapping
 
-```dogfood``` must be bootstrapped before it is able to build self contained Lua executables.
+Right after compilation, a dogfood binary must be bootstrapped before it is able to build self contained Lua executables.
 The makefile provided with the sources already takes care of this.
 In case when you have your own build environment, a bootstrap shell script is provided for Unix like environments and for Windows.
 
