@@ -54,7 +54,7 @@ The following executables are available for download to lower the bar for Window
 |-------------|-----|-----|
 | 5.2.4 | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood52_win_x86-64.zip) | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood52_win_x86-32.zip) |
 | 5.3.6 | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood53_win_x86-64.zip) | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood53_win_x86-32.zip) |
-| 5.4.2 | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood54_win_x86-64.zip) | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood54_win_x86-32.zip) |
+| 5.4.3 | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood54_win_x86-64.zip) | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood54_win_x86-32.zip) |
                               
 ## Bootstrapping
 
