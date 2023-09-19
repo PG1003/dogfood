@@ -26,6 +26,15 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+#if defined( _WIN32 ) && defined( EMBED_LUA_DLL )
+    #define LOAD_EMBEDDED_LUA_DLL
+
+    #include "resource.h"
+    #include <windows.h>
+    #include <tchar.h>
+    #include <assert.h>
+#endif
+
 #define STR_HELPER(x) #x
 #define STR(x) STR_HELPER(x)
 
@@ -35,6 +44,80 @@
 
 #if LUA_VERSION_NUM < 502 || LUA_VERSION_NUM > 504
     #error "Unsupported Lua version"
+#endif
+
+#if defined( LOAD_EMBEDDED_LUA_DLL )
+
+/* This function loads Lua DLL from its resource.
+ * Embedding the Lua DLL simplifies the distribution of dogfood and its derived executables.
+ *
+ * This feature is specific for Windows and is enabled by a EMBED_LUA_DLL preprocessor define.
+ *
+ * The function requires that:
+ * 1) The data is a valid Lua DLL that targets the same platform as dogfood's executable.
+ * 2) The DLL is delay loaded.
+ * 3) The ID for DLL in the resource is named IRD_LUADLL.
+ * 4) The resource type of the Lua DLL is RCDATA.
+ *
+ * The resource file should contain a line that look like the following;
+ *
+ *    IDR_LUADLL    RCDATA    "PATH_TO_YOUR\Lua.dll"
+ *
+ * Its possible to link dogfood static with Lua but then support for C mudules will be effectively
+ * disabled. C modules will likely require a Lua DLL that conflicts with the statically linked Lua
+ * instance in dogfood. In this case a 'multiple Lua VMs detected' message will be displayed in
+ * the console output when you run the resulting executable.
+ */
+static void load_lua_dll_from_resouce()
+{
+    /* https://stackoverflow.com/questions/17774103/using-an-embedded-dll-in-an-executable
+     * https://learn.microsoft.com/en-us/cpp/windows/how-to-include-resources-at-compile-time */
+
+#pragma warning( push, 3 )
+    const HRSRC resource_handle = FindResource( NULL,
+                                                MAKEINTRESOURCE( IDR_LUADLL ),
+                                                RT_RCDATA );
+    assert( resource_handle );
+#pragma warning( pop )
+
+    const HGLOBAL file_resouce_handle = LoadResource( NULL, resource_handle );
+    assert( file_resouce_handle );
+
+    const LPVOID file_at_resouce = LockResource( file_resouce_handle );
+    assert( file_at_resouce );
+
+    const DWORD  file_size = SizeofResource( NULL, resource_handle );
+
+    const TCHAR  lua_dll_name[] = _T("Lua" LUA_VERSION_MAJOR LUA_VERSION_MINOR ".dll");
+    const HANDLE file_handle    = CreateFile( lua_dll_name,
+                                              GENERIC_READ | GENERIC_WRITE,
+                                              0,
+                                              NULL,
+                                              CREATE_ALWAYS,
+                                              FILE_ATTRIBUTE_NORMAL,
+                                              NULL );
+    assert( file_handle );
+
+    const HANDLE file_mapping_handle = CreateFileMapping( file_handle,
+                                                          NULL,
+                                                          PAGE_READWRITE,
+                                                          0,
+                                                          file_size,
+                                                          NULL );
+    assert( file_mapping_handle );
+
+    const LPVOID mapped_file_address = MapViewOfFile( file_mapping_handle,
+                                                      FILE_MAP_WRITE,
+                                                      0, 0, 0 );
+    assert( mapped_file_address );
+
+    CopyMemory( mapped_file_address, file_at_resouce, file_size );
+
+    UnmapViewOfFile( mapped_file_address );
+    CloseHandle( file_mapping_handle );
+    CloseHandle( file_handle );
+}
+
 #endif
 
 static lua_State * L = 0;
@@ -88,6 +171,10 @@ static void load_module( char * const buffer,
 
 int main( int argc, char *argv[] )
 {
+#if defined( LOAD_EMBEDDED_LUA_DLL )
+    load_lua_dll_from_resouce();
+#endif
+
     L = luaL_newstate();
     luaL_openlibs( L );
 
