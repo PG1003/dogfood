@@ -140,12 +140,83 @@ static void dogfood_errno( lua_State * L )
     exit( 1 );
 }
 
-static void load_module( lua_State * L,
-                         char * const buffer,
-                         size_t module_size,
-                         const char * const module_name )
+typedef char module_name_buffer[ MAX_NAME_LENGTH + 1 ];
+
+static void read_module_header( lua_State * L,
+                                FILE * f,
+                                module_name_buffer module_name,
+                                unsigned long * module_size )
 {
-    const int result = luaL_loadbuffer( L, buffer, module_size, module_name );
+    const char header[]        = "\r\n-- %" MAX_NAME_LENGTH_STR "s %08lX%c%c";
+    char       carriage_return = 0;
+    char       new_line        = 0;
+
+    const int result = fscanf( f, header,
+                               module_name, module_size, &carriage_return, &new_line );
+
+    if( result == EOF && ferror( f ) )
+    {
+        dogfood_errno( L );
+    }
+
+    if( result != 4 ||
+        module_size == 0 ||
+        carriage_return != '\r' ||
+        new_line != '\n' )
+    {
+        dogfood_error( L, "No valid start of module '%s' found.", module_name );
+    }
+}
+
+typedef struct
+{
+    FILE *       f;
+    const char * module_name;
+    size_t       remaining;
+    size_t       available;
+    char         buffer[ 4096 ];
+} module_reader_ctx;
+
+static const char * module_reader( lua_State *L, void * p, size_t * size )
+{
+    module_reader_ctx * const ctx = ( module_reader_ctx * )p;
+
+    if( ctx->remaining == 0u )
+    {
+        return NULL;
+    }
+
+    const size_t max_buffer = sizeof( ctx->buffer );
+    const size_t n_to_read  = ctx->remaining < max_buffer ? ctx->remaining : max_buffer;
+
+    *size = fread( ctx->buffer, sizeof( char ), n_to_read, ctx->f );
+    if( ferror( ctx->f ) )
+    {
+        dogfood_errno( L );
+    }
+
+    if( *size != n_to_read )
+    {
+        dogfood_error( L, "Cannot read the entire module '%s'.", ctx->module_name );
+    }
+
+    ctx->remaining -= *size;
+
+    return ctx->buffer;
+}
+
+static void load_module( lua_State * L,
+                         FILE * const f,
+                         module_name_buffer module_name,
+                         size_t module_size )
+{
+    module_reader_ctx ctx;
+    ctx.f           = f;
+    ctx.module_name = module_name;
+    ctx.remaining   = module_size;
+    ctx.available   = 0u;
+
+    const int result = lua_load( L, module_reader, &ctx, module_name, NULL );
     switch( result )
     {
         case LUA_OK:
@@ -206,7 +277,7 @@ int main( int argc, char *argv[] )
         dogfood_errno( L );
     }
 
-    unsigned long payload_offset = 0;
+    unsigned long payload_offset = 0UL;
     if( fscanf( f, "\r\n-- dogfood %08lX\r\n", &payload_offset ) != 1 &&
         payload_offset == 0 )
     {
@@ -218,21 +289,10 @@ int main( int argc, char *argv[] )
         dogfood_errno( L );
     }
 
-    const char module_header[] = "\r\n-- %" MAX_NAME_LENGTH_STR "s %08lX%c%c";
-
     /* The main module is the first module in the payload */
-    char          main_module_name[ MAX_NAME_LENGTH + 1 ] = { 0 };
-    unsigned long main_module_size                        = 0;
-    char          carriage_return                         = 0;
-    char          new_line                                = 0;
-    if( fscanf( f, module_header, main_module_name, &main_module_size,
-        &carriage_return, &new_line ) != 4 ||
-        main_module_size == 0 ||
-        carriage_return != '\r' ||
-        new_line != '\n' )
-    {
-        dogfood_error( L, "No valid start of payload found." );
-    }
+    module_name_buffer main_module_name = { 0 };
+    unsigned long      main_module_size = 0UL;
+    read_module_header( L, f, main_module_name, &main_module_size );
 
     const long main_module_pos = ftell( f );
     if( !( main_module_pos != -1L &&
@@ -241,46 +301,18 @@ int main( int argc, char *argv[] )
         dogfood_errno( L );
     }
 
-    unsigned long buffer_size = main_module_size;
-    char *buffer              = malloc( buffer_size );
-
-    char module_name[ MAX_NAME_LENGTH + 1 ] = { 0 };
-
     /* Load modules (byte)code and add it to the package.loaded table */
     lua_getglobal( L, "package" );
     lua_getfield( L, -1, "loaded" );
 
     long pos = ftell( f );
-    while( ( pos >= 0 ) && ( pos < end_of_payload ) )
+    while( ( pos != -1L ) && ( pos < end_of_payload ) )
     {
-        unsigned long module_size = 0;
-        if( fscanf( f, module_header, module_name, &module_size,
-            &carriage_return , &new_line ) != 4 ||
-            carriage_return != '\r' ||
-            new_line != '\n' )
-        {
-            dogfood_error( L, "No valid start of module '%s' found.", module_name );
-        }
+        module_name_buffer module_name = { 0 };
+        unsigned long      module_size = 0UL;
 
-        if( buffer_size < module_size )
-        {
-            free( buffer );
-            buffer      = malloc( module_size );
-            buffer_size = module_size;
-        }
-
-        const size_t read_count = fread( buffer, sizeof( char ), module_size, f );
-        if( ferror( f ) )
-        {
-            dogfood_errno( L );
-        }
-
-        if( read_count != module_size )
-        {
-            dogfood_error( L, "Cannot read the entire module '%s'.", module_name );
-        }
-
-        load_module( L, buffer, module_size, module_name );
+        read_module_header( L, f, module_name, &module_size );
+        load_module( L, f, module_name, module_size );
 
         lua_call( L, 0, 1 );
         lua_setfield( L, -2, module_name );
@@ -288,29 +320,16 @@ int main( int argc, char *argv[] )
         pos = ftell( f );
     }
 
-    if( ferror( f ) )
-    {
-        dogfood_errno( L );
-    }
-
     /* Load and execute the main module (byte)code */
-    size_t read_count = 0;
-    if( fseek( f, main_module_pos, SEEK_SET ) ||
-        ( read_count = fread( buffer, sizeof( char ), main_module_size, f ),
-          ferror( f ) ) ||
-        fclose( f ) )
+    if( ferror( f ) ||
+        fseek( f, main_module_pos, SEEK_SET ) )
     {
         dogfood_errno( L );
     }
 
-    if( read_count != main_module_size )
-    {
-        dogfood_error( L, "Cannot read the entire main module." );
-    }
+    load_module( L, f, main_module_name, main_module_size );
 
-    load_module( L, buffer, main_module_size, main_module_name );
-
-    free( buffer ); /* Free it so the memory can be reused by Lua */
+    fclose( f );
 
     const int status = lua_pcall( L, 0, 1, 0 );
 
