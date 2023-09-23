@@ -19,7 +19,7 @@
 -- SOFTWARE.
 
 
-local help = [[dogfood v1.0.2
+local help = [[dogfood v1.1.0
 
 A tool  for creating self running Lua programs.
 

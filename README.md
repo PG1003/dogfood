@@ -50,7 +50,7 @@ The following ```OPTIONS``` are available.
 Building dogfood binaries for Windows requires more effort than for Unix like operating systems.  
 The following executables are available for download to lower the bar for Windows users that want to try ```dogfood``` or don't have the knowledge to build it.
 
-| Lua version | dogfood v1.0.2 x86-64 | dogfood v1.0.2 x86-32 |
+| Lua version | dogfood v1.1.0 x86-64 | dogfood v1.1.0 x86-32 |
 |-------------|-----|-----|
 | 5.2.4 | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood52_win_x86-64.zip) | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood52_win_x86-32.zip) |
 | 5.3.6 | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood53_win_x86-64.zip) | [download](https://raw.githubusercontent.com/PG1003/dogfood/master/exe/dogfood53_win_x86-32.zip) |
